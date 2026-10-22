@@ -1,0 +1,10 @@
+{
+  "name": "smash-rankings",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Super Smash Bros. rankings, brackets and live scoreboard for Orange Unified Scholastic Esports",
+  "scripts": {
+    "start": "node serve.js --open",
+    "serve": "node serve.js"
+  }
+}

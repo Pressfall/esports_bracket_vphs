@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#030506">
+  <title>Smash Rankings · Orange Unified Scholastic Esports</title>
+  <meta name="description" content="Super Smash Bros. scores, Elo rankings, brackets and a live scoreboard for Orange Unified Scholastic Esports.">
+  <link rel="icon" type="image/webp" href="assets/ousdesports.webp">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    // Apply the saved light/dark choice before the page draws, so it doesn't flash.
+    (function () {
+      try {
+        var prefs = JSON.parse(localStorage.getItem('ssbRankings.prefs') || '{}');
+        if (prefs.theme === 'light' || prefs.theme === 'dark') document.documentElement.setAttribute('data-theme', prefs.theme);
+      } catch (e) { /* storage blocked: use the system theme */ }
+    })();
+
+    // Load the published scores file (if there is one) before the app starts.
+    // On a hosted site a cache-buster makes sure visitors get the newest upload.
+    (function () {
+      var script = document.createElement('script');
+      var hosted = location.protocol === 'http:' || location.protocol === 'https:';
+      script.src = 'published-data.js' + (hosted ? '?v=' + Date.now() : '');
+      script.onload = script.onerror = function () {
+        window.__publishedLoaded = true;
+        document.dispatchEvent(new Event('published-loaded'));
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+
+  <script defer src="js/brand.js"></script>
+  <script defer src="js/characters.js"></script>
+  <script defer src="js/utils.js"></script>
+  <script defer src="js/stats.js"></script>
+  <script defer src="js/bracket.js"></script>
+  <script defer src="js/sample-data.js"></script>
+  <script defer src="js/store.js"></script>
+  <script defer src="js/components.js"></script>
+  <script defer src="js/views/leaderboard.js"></script>
+  <script defer src="js/views/record.js"></script>
+  <script defer src="js/views/matches.js"></script>
+  <script defer src="js/views/players.js"></script>
+  <script defer src="js/views/profile.js"></script>
+  <script defer src="js/views/brackets.js"></script>
+  <script defer src="js/views/live.js"></script>
+  <script defer src="js/views/settings.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#view">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#/">
+        <img class="brand-logo" src="assets/ousdesports.webp" alt="" width="50" height="50">
+        <span class="brand-text">
+          <span class="brand-title" id="site-title">Smash Rankings</span>
+          <span class="brand-season" id="site-season">Orange Unified Scholastic Esports</span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <button type="button" id="lock-btn" class="header-btn" hidden></button>
+        <button type="button" id="theme-btn" class="header-btn" aria-label="Switch between light and dark theme"></button>
+      </div>
+    </div>
+    <nav class="container nav" id="nav" aria-label="Main"></nav>
+  </header>
+
+  <div id="banners" class="container"></div>
+
+  <main id="view" class="container" tabindex="-1">
+    <p class="loading">Loading…</p>
+  </main>
+
+  <footer class="site-footer container">
+    <p>Character icons are from Super Smash Bros. Ultimate © Nintendo / HAL Laboratory, Inc. and the characters'
+      owners, used for a non-commercial class project. Logo © Orange Unified Scholastic Esports.</p>
+  </footer>
+
+  <div id="modal-root"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <noscript><p class="container">This site needs JavaScript turned on.</p></noscript>
+</body>
+</html>
