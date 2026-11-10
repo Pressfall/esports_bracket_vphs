@@ -12,7 +12,7 @@
   // Manages its own redraws, so it isn't redrawn when scores change elsewhere.
   Views.live = { manual: true, render, leave, startFromBracket };
 
-  const mainOf = pid => { const p = pid && Store.player(pid); return (p && p.main) || ''; };
+  const mainOf = pid => (pid ? Store.mainOf(pid) : '');
   const sideLabel = si => Store.sideName(live.sides[si]);
   const needed = () => Math.ceil(live.bestOf / 2);
   const score = () => [0, 1].map(si => live.games.filter(g => g.winner === si).length);

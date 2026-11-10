@@ -307,7 +307,7 @@
       const lost = m.winner !== null && !won;
       const name = e ? sideName(e.players) : (m.bye ? 'Bye' : 'TBD');
       // Each entrant's main, so the bracket reads like a tournament overlay.
-      const mains = e ? e.players.map(pid => { const p = Store.player(pid); return p && p.main ? UI.charIcon(p.main, 20) : ''; }).join('') : '';
+      const mains = e ? e.players.map(pid => { return UI.charIcon(Store.mainOf(pid), 20); }).join('') : '';
       return `<div class="bk-line${won ? ' is-winner' : ''}${lost ? ' is-loser' : ''}${e ? '' : ' is-empty'}">
         <span class="bk-seed">${e ? e.seed : ''}</span>
         <span class="bk-name" title="${esc(name)}">${mains ? `<span class="bk-mains">${mains}</span>` : ''}${esc(name)}</span>

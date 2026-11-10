@@ -4,6 +4,13 @@
 
   Views.profile = { render };
 
+  // "Most played · 14 games" next to an automatic main.
+  function autoMainNote(p) {
+    if (!Store.mainIsAutomatic(p)) return '';
+    const auto = Store.stats().mains.get(p.id);
+    return ` <span class="muted small">Most played · ${Utils.plural(auto.games, 'game')}</span>`;
+  }
+
   function render(root, params) {
     const p = Store.player(params[0]);
     if (!p) {
@@ -30,7 +37,7 @@
           <h1>${esc(p.tag)}</h1>
           <p class="muted">${[p.name !== p.tag ? esc(p.name) : '', p.period ? esc(p.period) : ''].filter(Boolean).join(' · ')}
             ${p.archived ? '<span class="badge">Archived</span>' : ''}</p>
-          ${p.main ? `<p class="profile-main"><span class="label">Main</span> ${UI.charPill(p.main)}</p>` : ''}
+          ${Store.mainOf(p) ? `<p class="profile-main"><span class="label">Main</span> ${UI.charPill(Store.mainOf(p))}${autoMainNote(p)}</p>` : ''}
         </div>
         ${Store.mode === 'main' ? '<div class="profile-actions"><button type="button" class="btn btn-secondary" data-edit>Edit player</button></div>' : ''}
       </section>

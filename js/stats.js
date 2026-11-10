@@ -121,7 +121,37 @@ const Stats = (() => {
 
       out.deltas.set(m.id, deltas);
     }
+    out.mains = computeMains(state.players || [], out);
     return out;
+  }
+
+  // Each player's most-played character across singles and doubles games, as
+  // playerId -> { name, games, wins }. A player with no recorded characters has no entry.
+  // Ties go to more wins, then to the character they were already set to, then to whichever
+  // was used first, so the answer never flickers.
+  function computeMains(players, stats) {
+    const mains = new Map();
+    for (const p of players) {
+      const total = new Map();
+      for (const mode of MODES) {
+        const used = stats.chars[mode].get(p.id);
+        if (!used) continue;
+        for (const [name, c] of used) {
+          const t = getOrAdd(total, name, () => ({ games: 0, wins: 0 }));
+          t.games += c.games;
+          t.wins += c.wins;
+        }
+      }
+      let best = null;
+      for (const [name, t] of total) {
+        if (!best || t.games > best.games ||
+            (t.games === best.games && (t.wins > best.wins || (t.wins === best.wins && name === p.main)))) {
+          best = { name, games: t.games, wins: t.wins };
+        }
+      }
+      if (best) mains.set(p.id, best);
+    }
+    return mains;
   }
 
   function winRate(rec) {

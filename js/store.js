@@ -32,7 +32,7 @@ const Store = (() => {
         title: 'Smash Rankings', season: Utils.seasonName(), createdAt: new Date().toISOString(),
         isSample: false, lastBackupAt: null, lastPublishedAt: null
       },
-      settings: { startRating: 1000, kFactor: 32, provisionalSets: 3, bestOf: 3, stocks: 3, pinHash: null },
+      settings: { startRating: 1000, kFactor: 32, provisionalSets: 3, bestOf: 3, stocks: 3, autoMain: true, pinHash: null },
       players: [],
       matches: [],
       brackets: []
@@ -70,6 +70,7 @@ const Store = (() => {
         provisionalSets: int(s.provisionalSets, 0, 20, 3),
         bestOf: oneOf(s.bestOf, [1, 3, 5], 3),
         stocks: int(s.stocks, 1, 5, 3),
+        autoMain: s.autoMain !== false,
         pinHash: typeof s.pinHash === 'string' && s.pinHash ? s.pinHash : null
       },
       players: [],
@@ -248,6 +249,23 @@ const Store = (() => {
   function player(id) { return playerMap().get(id) || null; }
   function displayName(p) { return p ? (p.tag || p.name) : 'Unknown player'; }
   function nameOf(id) { return displayName(player(id)); }
+
+  // A player's main character. With "automatic mains" on (the default), it's the character
+  // they have used most in recorded games; until they have any, the main set by hand is used.
+  // Takes a player or a player id. Returns '' when there is none.
+  function mainOf(who) {
+    const p = typeof who === 'string' ? player(who) : who;
+    if (!p) return '';
+    if (state.settings.autoMain) {
+      const auto = stats().mains.get(p.id);
+      if (auto) return auto.name;
+    }
+    return p.main || '';
+  }
+  // True when the shown main comes from match results rather than being set by hand.
+  function mainIsAutomatic(p) {
+    return !!(p && state.settings.autoMain && stats().mains.has(p.id));
+  }
   function sideName(side) { return side.map(nameOf).join(' & '); }
   const byTag = (a, b) => a.tag.localeCompare(b.tag, undefined, { sensitivity: 'base' });
   function activePlayers() { return state.players.filter(p => !p.archived).sort(byTag); }
@@ -466,7 +484,8 @@ const Store = (() => {
       kFactor: int(patch.kFactor ?? cur.kFactor, 1, 100, cur.kFactor),
       provisionalSets: int(patch.provisionalSets ?? cur.provisionalSets, 0, 20, cur.provisionalSets),
       bestOf: oneOf(patch.bestOf ?? cur.bestOf, [1, 3, 5], cur.bestOf),
-      stocks: int(patch.stocks ?? cur.stocks, 1, 5, cur.stocks)
+      stocks: int(patch.stocks ?? cur.stocks, 1, 5, cur.stocks),
+      autoMain: patch.autoMain === undefined ? cur.autoMain : !!patch.autoMain
     };
     update(s => { Object.assign(s.settings, next); });
   }
@@ -651,7 +670,7 @@ const Store = (() => {
     get published() { return published; },
     get saveFailed() { return saveFailed; },
     get startupWarning() { return startupWarning; },
-    player, displayName, nameOf, sideName, activePlayers, allPlayers, periods,
+    player, displayName, nameOf, mainOf, mainIsAutomatic, sideName, activePlayers, allPlayers, periods,
     addPlayer, addPlayers, updatePlayer, setArchived, playerUsage, deletePlayer,
     match, isBracketManaged, addMatch, updateMatch, deleteMatch, restoreMatch,
     bracket, createBracket, reportBracketResult, undoBracketResult, deleteBracket,

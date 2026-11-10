@@ -57,6 +57,8 @@
           <label class="field"><span class="label">Default stocks</span>
             <select name="stocks">${pick([1, 2, 3, 4, 5], st.stocks, v => Utils.plural(v, 'stock'))}</select></label>
         </div>
+        <label class="check"><input type="checkbox" name="autoMain"${st.autoMain ? ' checked' : ''}>
+          <span>Update each player's main automatically to the character they use most. Turn off to keep the mains you set by hand.</span></label>
         <p class="muted small">Changing the starting rating or K-factor recalculates every rating from the first match.</p>
         <div class="form-actions"><button type="submit" class="btn btn-primary">Save</button></div>
       </form>
@@ -188,7 +190,7 @@
       UI.guard(() => {
         Store.setSettings({
           startRating: f.startRating.value, kFactor: f.kFactor.value, provisionalSets: f.provisionalSets.value,
-          bestOf: f.bestOf.value, stocks: f.stocks.value
+          bestOf: f.bestOf.value, stocks: f.stocks.value, autoMain: f.autoMain.checked
         });
         UI.toast('Saved. Ratings were recalculated.', { kind: 'success' });
       });
@@ -371,7 +373,7 @@
       const last = [a && a.lastPlayed, b && b.lastPlayed].filter(Boolean).sort().pop();
       const winPct = r => (r && r.sets ? Math.round((r.wins / r.sets) * 100) : '');
       rows.push([
-        p.tag, p.name, p.period, p.main,
+        p.tag, p.name, p.period, Store.mainOf(p),
         ranks.singles.get(p.id) || '', a && a.sets ? Math.round(a.rating) : '', a ? a.wins : 0, a ? a.losses : 0, winPct(a),
         a ? a.gamesWon : 0, a ? a.gamesLost : 0,
         ranks.doubles.get(p.id) || '', b && b.sets ? Math.round(b.rating) : '', b ? b.wins : 0, b ? b.losses : 0, winPct(b),

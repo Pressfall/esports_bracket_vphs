@@ -212,7 +212,7 @@ const UI = (() => {
 
   // A player's avatar is their main's stock icon, or their initials if they haven't picked a main.
   function avatar(p, size = '') {
-    const icon = p && p.main ? Characters.icon(p.main) : '';
+    const icon = Characters.icon(Store.mainOf(p));
     if (icon) {
       return `<span class="avatar avatar-char ${size}" aria-hidden="true"><img src="${icon}" alt="" loading="lazy" decoding="async"></span>`;
     }
@@ -455,7 +455,7 @@ const UI = (() => {
     const onChange = opts.onChange || (() => {});
     const size = () => (st.type === 'doubles' ? 2 : 1);
     const needed = () => Math.ceil(st.bestOf / 2);
-    const mainOf = pid => { const p = pid && Store.player(pid); return (p && p.main) || ''; };
+    const mainOf = pid => (pid ? Store.mainOf(pid) : '');
     const freshChars = prev => [0, 1].map(si => Utils.range(size()).map(pi => (prev ? prev[si][pi] : mainOf(st.sides[si][pi])) || ''));
     const isDecided = g => g.winner === 0 || g.winner === 1;
 

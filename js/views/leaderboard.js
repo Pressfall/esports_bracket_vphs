@@ -74,7 +74,7 @@
         ${UI.avatar(row.player, 'avatar-lg')}
         <a class="podium-name" href="#/player/${encodeURIComponent(row.player.id)}">${esc(row.player.tag)}</a>
         <span class="podium-rating">${Math.round(row.rec.rating)}</span>
-        <span class="podium-meta">${row.rec.wins}–${row.rec.losses}${row.player.main ? ' · ' + esc(row.player.main) : ''}</span>
+        <span class="podium-meta">${row.rec.wins}–${row.rec.losses}${Store.mainOf(row.player) ? ' · ' + esc(Store.mainOf(row.player)) : ''}</span>
       </li>`).join('')}</ol>`;
   }
 
@@ -106,7 +106,7 @@
             return `<tr>
               <td class="num"><span class="rank rank-${row.rank}">${row.rank}</span></td>
               <td>${UI.playerLink(row.player)}</td>
-              <td class="hide-md">${UI.charPill(row.player.main) || '<span class="muted">—</span>'}</td>
+              <td class="hide-md">${UI.charPill(Store.mainOf(row.player)) || '<span class="muted">—</span>'}</td>
               <td class="num nowrap">${UI.rating(r)}${UI.delta(r.lastDelta)}</td>
               <td class="num">${r.wins}–${r.losses}</td>
               <td class="num hide-sm">${Utils.pct(r.wins, r.sets)}</td>

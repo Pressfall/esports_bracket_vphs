@@ -123,7 +123,7 @@
     const st = Store.stats();
     const q = search.trim().toLowerCase();
     const list = Store.allPlayers().filter(p => (showArchived || !p.archived) &&
-      (!q || [p.tag, p.name, p.main, p.period].some(v => (v || '').toLowerCase().includes(q))));
+      (!q || [p.tag, p.name, Store.mainOf(p), p.period].some(v => (v || '').toLowerCase().includes(q))));
     if (!list.length) {
       return `<p class="muted roster-empty">${Store.state.players.length ? 'No players match your search.' : 'No players yet.' + (main ? ' Add your class above.' : '')}</p>`;
     }
@@ -142,7 +142,7 @@
         const canDelete = use && !use.matches && !use.brackets;
         return `<tr class="${p.archived ? 'is-archived' : ''}">
           <td>${UI.playerLink(p)}${p.archived ? ' <span class="badge">Archived</span>' : ''}</td>
-          <td class="hide-sm">${UI.charPill(p.main) || '<span class="muted">—</span>'}</td>
+          <td class="hide-sm">${UI.charPill(Store.mainOf(p)) || '<span class="muted">—</span>'}</td>
           <td class="hide-md">${p.period ? esc(p.period) : '<span class="muted">—</span>'}</td>
           <td class="num nowrap">${ratingCell(st.singles.get(p.id))}</td>
           <td class="num nowrap hide-sm">${ratingCell(st.doubles.get(p.id))}</td>
@@ -157,10 +157,11 @@
   }
 
   // "Main character" field: a picker button plus a hidden input the form reads.
-  function mainField(main) {
+  function mainField(main, hint = '') {
     return `<div class="field"><span class="label">Main character</span>
         ${UI.charButton(main, { attrs: 'data-main-pick', label: 'Main character' })}
         <input type="hidden" name="main" value="${esc(main)}">
+        ${hint ? `<span class="muted small">${hint}</span>` : ''}
       </div>`;
   }
 
@@ -187,7 +188,8 @@
         body: `<div class="form-grid">
             <label class="field"><span class="label">Gamertag</span><input name="tag" maxlength="30" autocomplete="off" value="${esc(p.tag)}"></label>
             <label class="field"><span class="label">Name</span><input name="name" maxlength="60" autocomplete="off" value="${esc(p.name)}"></label>
-            ${mainField(p.main)}
+            ${mainField(p.main, Store.mainIsAutomatic(p)
+              ? `Used until they play. Their main now updates itself: ${esc(Store.mainOf(p))}, their most-played character.` : '')}
             <label class="field"><span class="label">Class period <span class="optional">(optional)</span></span>
               <input name="period" maxlength="30" list="period-list" autocomplete="off" value="${esc(p.period)}"></label>
           </div>`,
